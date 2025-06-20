@@ -4,15 +4,18 @@ using TMPro;
 
 public class Autenticación : MonoBehaviour
 {
-//Login
+
+    // Paneles
+    public GameObject panelLogin;
+    public GameObject panelRegistro;
+    public GameObject panelHabitos;
+///  Login
     public TMP_InputField campoEmail;
     public TMP_InputField campoContraseña;
     public GameObject mensajeError;
-    public GameObject panelHabitos;     // Nuevo panel que se activa tras login
-    public GameObject panelLogin;       // Panel de fondo (login) que se ocultará
 
-    //Registro
-    public GameObject panelRegistro;
+
+    //  Registro
     public TMP_InputField campoRegistroNombre;
     public TMP_InputField campoRegistroApellido;
     public TMP_InputField campoRegistroEmail;
@@ -21,15 +24,16 @@ public class Autenticación : MonoBehaviour
 
      public void IniciarSesion()
     {
-        string emailGuardado = PlayerPrefs.GetString("email", "");
-        string passGuardado = PlayerPrefs.GetString("password", "");
+         Usuario usuarioGuardado = GestorDatos.CargarUsuario();
 
-        if (campoEmail.text == emailGuardado && campoContraseña.text == passGuardado)
+        if (usuarioGuardado != null &&
+            campoEmail.text == usuarioGuardado.email &&
+            campoContraseña.text == usuarioGuardado.contraseña)
         {
-            Debug.Log("Inicio de sesión correcto");
+            Debug.Log("Login correcto: " + usuarioGuardado.nombre);
             mensajeError.SetActive(false);
-            panelHabitos.SetActive(true);
             panelLogin.SetActive(false);
+            panelHabitos.SetActive(true);
         }
         else
         {
@@ -39,11 +43,17 @@ public class Autenticación : MonoBehaviour
 //Confirmar nuevo registro
     public void ConfirmarRegistro()
     {
-        PlayerPrefs.SetString("nombre", campoRegistroNombre.text);
-        PlayerPrefs.SetString("apellido", campoRegistroApellido.text);
-        PlayerPrefs.SetString("email", campoRegistroEmail.text);
-        PlayerPrefs.SetString("password", campoRegistroContraseña.text);
-        PlayerPrefs.Save();
+        Usuario nuevoUsuario = new Usuario();
+        nuevoUsuario.nombre = campoRegistroNombre.text;
+        nuevoUsuario.apellido = campoRegistroApellido.text;
+        nuevoUsuario.email = campoRegistroEmail.text;
+        nuevoUsuario.contraseña = campoRegistroContraseña.text;
+
+        // Ejemplo: hábitos por defecto
+        nuevoUsuario.habitos.Add(new Habito { nombre = "Beber agua", completado = false });
+        nuevoUsuario.habitos.Add(new Habito { nombre = "Leer 10 minutos", completado = false });
+
+        GestorDatos.GuardarUsuario(nuevoUsuario);
 
         Debug.Log("Registro exitoso");
         panelRegistro.SetActive(false);
